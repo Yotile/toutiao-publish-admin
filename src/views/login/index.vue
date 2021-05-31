@@ -43,8 +43,8 @@
 </template>
 
 <script>
-// 加载 request 模块
-import request from '@/utils/request'
+// 加载user接口模块
+import { login } from '@/api/user'
 
 export default {
   name: 'LoginIndex',
@@ -71,6 +71,9 @@ export default {
         ],
         agree: [
           {
+          // 自定义校验规则：https://element.eleme.cn/#/zh-CN/component/form#zi-ding-yi-xiao-yan-gui-ze
+          // 验证通过：callback()
+          // 验证失败：callback(new Error('错误消息'))
             validator: (rule, value, callback) => {
               if (value) {
                 callback()
@@ -112,13 +115,8 @@ export default {
     login () {
       // 登录按钮的loding...
       this.loginLoding = true
-
-      request({
-        method: 'POST',
-        url: '/mp/v1_0/authorizations',
-        // data 用来设置 POST 请求体
-        data: this.user
-      }).then(res => {
+      // 接口封装后
+      login(this.user).then(res => {
         // 登录成功
         console.log(res)
         this.$message({
