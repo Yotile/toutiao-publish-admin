@@ -10,10 +10,10 @@
                     <span>头条号后台管理系统</span>
                 </div>
                 <div class="avatar-wrap">
-                    <img class="avatar" src="@/assets/logo.png" alt="">
+                    <img class="avatar" :src="user.photo" alt="">
                     <el-dropdown>
                 <span>
-                    用户昵称<i class="el-icon-arrow-down el-icon--right"></i>
+                    {{ user.name }}<i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>用户设置</el-dropdown-item>
@@ -32,6 +32,7 @@
 
 <script>
 import AppAside from './components/aside'
+import { getUserProfile } from '@/api/user'
 
 export default {
   name: 'LayoutIndex',
@@ -40,13 +41,26 @@ export default {
   },
   props: {},
   data () {
-    return {}
+    return {
+    // 当前登录用户信息
+      user: {}
+    }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    // 组件初始化好，请求获取用户信息
+    this.loadUserProfile()
+  },
   mounted () {},
-  methods: {}
+  methods: {
+    loadUserProfile () {
+      getUserProfile().then(res => {
+        console.log(res)
+        this.user = res.data.data
+      })
+    }
+  }
 }
 </script>
 
