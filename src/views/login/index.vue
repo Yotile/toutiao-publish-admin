@@ -118,7 +118,7 @@ export default {
       // 接口封装后
       login(this.user).then(res => {
         // 登录成功
-        console.log(res)
+        // console.log(res)
         this.$message({
           message: '恭喜你，登录成功!',
           type: 'success'

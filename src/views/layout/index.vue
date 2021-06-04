@@ -1,12 +1,21 @@
 <template>
     <el-container class="layout-container">
-        <el-aside class="aside" width="200px">
-            <app-aside class="aside-menu"/>
-            </el-aside>
+        <el-aside class="aside" width="auto">
+            <!-- 侧边栏子组件 -->
+            <app-aside class="aside-menu" :is-collapsed='isCollapsed'/>
+        </el-aside>
         <el-container>
             <el-header class="header">
                 <div>
-                    <i class="el-icon-s-unfold"></i>
+                    <!-- CSS样式处理
+                    {
+                        CSS类名：布尔值
+                    }
+                    如果为true就作用上 -->
+                    <i
+                    :class="{'el-icon-s-fold': isCollapsed, 'el-icon-s-unfold': !isCollapsed}"
+                    @click="isCollapsed = ! isCollapsed"
+                    ></i>
                     <span>头条号后台管理系统</span>
                 </div>
                 <div class="avatar-wrap">
@@ -43,7 +52,8 @@ export default {
   data () {
     return {
     // 当前登录用户信息
-      user: {}
+      user: {},
+      isCollapsed: false // 控制左侧菜单栏的展开状态
     }
   },
   computed: {},
@@ -56,7 +66,7 @@ export default {
   methods: {
     loadUserProfile () {
       getUserProfile().then(res => {
-        console.log(res)
+        // console.log(res)
         this.user = res.data.data
       })
     }
