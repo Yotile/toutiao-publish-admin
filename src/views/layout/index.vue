@@ -26,7 +26,9 @@
                 </span>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>用户设置</el-dropdown-item>
-                    <el-dropdown-item>退出登录</el-dropdown-item>
+                    <!-- 组件默认是不识别原生事件的,除非内部做了处理
+                    不然就使用.native修饰符-->
+                    <el-dropdown-item @click.native="onLogout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
                 </el-dropdown>
                 </div>
@@ -68,6 +70,23 @@ export default {
       getUserProfile().then(res => {
         // console.log(res)
         this.user = res.data.data
+      })
+    },
+    onLogout () {
+      this.$confirm('是否退出登录?', '退出提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 清除用户的登录状态
+        window.localStorage.removeItem('user')
+        // 路由跳转到登录页
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
       })
     }
   }

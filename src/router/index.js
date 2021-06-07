@@ -31,7 +31,7 @@ const routes = [
     ]
   }
 ]
-// 用户登录信息
+// 用户登录状态信息
 const user = JSON.parse(window.localStorage.getItem('user'))
 
 const router = new VueRouter({
