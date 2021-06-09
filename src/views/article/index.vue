@@ -48,26 +48,64 @@
         根据筛选条件共查询到 299 条结果：
       </div>
       <!-- 数据列表 -->
+      <!-- table 表格
+      1. 把需要展示的数组列表数据绑定给 table 组件的 data 属性
+            注意: 不用v-for 遍历,它自己会遍历
+      2. 设置表格列  el-table-column
+          width 可以设定表格列的宽度
+          label 可以设定列的标题
+          prop 用来设定要渲染的列表项数据字段,只能展示文本
+      3. 表格列默认只能渲染普通文本,如果要展示其他内容,例如放个按钮,放个图片,那就需要自定义表格列模板了:
+          参考文档:https://element.eleme.cn/#/zh-CN/component/table#zi-ding-yi-lie-mo-ban
+       -->
       <el-table
-        :data="tableData"
+        :data="articles"
         style="width: 100%"
         class="list-table"
         stripe
         size="mini"
         >
         <el-table-column
-          prop="date"
-          label="日期"
-          width="180">
+          prop=""
+          label="封面">
         </el-table-column>
         <el-table-column
-          prop="name"
-          label="姓名"
-          width="180">
+          prop="title"
+          label="标题">
         </el-table-column>
         <el-table-column
-          prop="address"
-          label="地址">
+          label="状态">
+          <!-- 如果需要在自定义列模板中获取当前遍历项数据,
+          那么就在 template 上声明:
+          slot-scope="scope" -->
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status === 0">草稿</el-tag>
+            <el-tag type="warning" v-else-if="scope.row.status === 1">待审核</el-tag>
+            <el-tag type="success" v-else-if="scope.row.status === 2">审核通过</el-tag>
+            <el-tag type="danger" v-else-if="scope.row.status === 3">审核失败</el-tag>
+            <el-tag type="info" v-else-if="scope.row.status === 4">已删除</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="pubdate"
+          label="发布时间">
+        </el-table-column>
+        <el-table-column
+          label="操作">
+          <template>
+            <el-button
+              size="mini"
+              type="primary"
+              icon="el-icon-edit"
+              circle
+              ></el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              icon="el-icon-delete"
+              circle
+              ></el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- 数据列表 end -->
@@ -84,8 +122,9 @@
 </template>
 
 <script>
+import { getArticle } from '@/api/article'
 export default {
-  name: '',
+  name: 'ArticleIndex',
   components: {},
   props: {},
   data () {
@@ -100,30 +139,22 @@ export default {
         resource: '',
         desc: ''
       },
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      articles: [] // 文章数据列表
     }
   },
   computed: {},
   watch: {},
-  created () {},
+  created () {
+    this.loadArticles()
+  },
   mounted () {},
   methods: {
+    loadArticles () {
+      getArticle().then(res => {
+        // console.log(res)
+        this.articles = res.data.data.results
+      })
+    },
     onSubmit () {
       console.log('submit!')
     }
