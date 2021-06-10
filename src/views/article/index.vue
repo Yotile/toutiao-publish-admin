@@ -120,7 +120,9 @@
     <el-pagination
       layout="prev, pager, next"
       background
-      :total="1000">
+      :total="1000"
+      @current-change="onCurrentChange"
+      >
     </el-pagination>
     <!-- 数据分页 end -->
     </el-card>
@@ -158,18 +160,24 @@ export default {
   computed: {},
   watch: {},
   created () {
-    this.loadArticles()
+    this.loadArticles(1) // 默认传个 1 ,看第一页的数据
   },
   mounted () {},
   methods: {
-    loadArticles () {
-      getArticle().then(res => {
+    loadArticles (page) { // page = 1 也可以设置默认页码
+      getArticle({
+        page, // page: page
+        per_page: 10
+      }).then(res => {
         // console.log(res)
         this.articles = res.data.data.results
       })
     },
     onSubmit () {
       console.log('submit!')
+    },
+    onCurrentChange (page) {
+      this.loadArticles(page)
     }
   }
 }
