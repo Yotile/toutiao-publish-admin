@@ -116,15 +116,21 @@
       </el-table>
       <!-- 数据列表 end -->
 
-    <!-- 数据分页 -->
+    <!-- 数据列表分页 -->
+    <!--
+      total 用来设定中数据的条数
+      它默认按照 10 条每页计算总页码
+      page-size 每页显示条目个数，支持 .sync 修饰符 默认每页 10 条
+     -->
     <el-pagination
       layout="prev, pager, next"
       background
-      :total="1000"
+      :total="totalCount"
       @current-change="onCurrentChange"
+      :page-size="pageSize"
       >
     </el-pagination>
-    <!-- 数据分页 end -->
+    <!-- 数据列表分页 end -->
     </el-card>
   </div>
 </template>
@@ -154,7 +160,9 @@ export default {
         { status: 2, text: '审核通过', type: 'success' },
         { status: 3, text: '审核失败', type: 'danger' },
         { status: 4, text: '已删除', type: 'info' }
-      ]
+      ],
+      totalCount: 0, // 总数据条数
+      pageSize: 20 // 每页数量
     }
   },
   computed: {},
@@ -167,10 +175,16 @@ export default {
     loadArticles (page) { // page = 1 也可以设置默认页码
       getArticle({
         page, // page: page
-        per_page: 10
+        per_page: this.pageSize
       }).then(res => {
         // console.log(res)
-        this.articles = res.data.data.results
+        // 重复部分可解构
+        // total_count: totalCount 重命名-->由于代码格式检验规范限制只能用驼峰命名法
+        const { results, total_count: totalCount } = res.data.data
+        // this.articles = res.data.data.results
+        // this.totalCount = res.data.data.totalCount
+        this.articles = results // 数据列表
+        this.totalCount = totalCount // 列表分页的总数
       })
     },
     onSubmit () {
