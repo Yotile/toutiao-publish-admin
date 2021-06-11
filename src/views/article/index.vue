@@ -28,8 +28,12 @@
           </el-form-item>
           <el-form-item label="频道：">
             <el-select v-model="form.region" placeholder="请选择频道">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+              <el-option
+              :label="channel.name"
+              :value="channel.id"
+              v-for="(channel, index) in channels"
+              :key="index"
+              ></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="日期：">
@@ -144,7 +148,8 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/article'
+import { getArticle, getArticleChannels } from '@/api/article'
+
 export default {
   name: 'ArticleIndex',
   components: {},
@@ -171,17 +176,27 @@ export default {
       ],
       totalCount: 0, // 总数据条数
       pageSize: 10, // 每页数量
-      status: null // 根据文章的状态查询, 不传就是查全部
+      status: null, // 根据文章的状态查询, 不传就是查全部
+      channels: [] // 文章频道列表
     }
   },
   computed: {},
   watch: {},
   created () {
-    this.loadArticles(1) // 默认传个 1 ,看第一页的数据
+    // 加载时调用
+    this.loadChannels() // [频道]
+    this.loadArticles(1) // [文章数据]默认传个 1 ,看第一页的数据
   },
   mounted () {},
   methods: {
-    loadArticles (page = 1) { // page = 1 也可以设置默认页码
+    loadChannels () {
+      getArticleChannels().then(res => {
+        console.log(res)
+        this.channels = res.data.data.channels
+      })
+    },
+    loadArticles (page = 1) {
+    // page = 1 也可以设置默认页码
       getArticle({
         page, // page: page  第几页
         per_page: this.pageSize, // 总页码
@@ -196,9 +211,6 @@ export default {
         this.articles = results // 数据列表
         this.totalCount = totalCount // 列表分页的总数
       })
-    },
-    onSubmit () {
-      console.log('submit!')
     },
     onCurrentChange (page) {
       this.loadArticles(page)
