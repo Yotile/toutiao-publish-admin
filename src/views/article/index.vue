@@ -27,7 +27,11 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="频道：">
-            <el-select v-model="form.region" placeholder="请选择频道">
+            <el-select v-model="channelID" placeholder="请选择频道">
+              <el-option
+              label="全部"
+              :value="null"
+              ></el-option>
               <el-option
               :label="channel.name"
               :value="channel.id"
@@ -38,11 +42,13 @@
           </el-form-item>
           <el-form-item label="日期：">
             <el-date-picker
-              v-model="form.data1"
+              v-model="rangeDate"
               type="datetimerange"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              :default-time="['12:00:00']">
+              :default-time="['12:00:00']"
+              format="yyyy-MM-dd"
+              value-format="yyyy-MM-dd">
             </el-date-picker>
           </el-form-item>
           <el-form-item>
@@ -81,8 +87,17 @@
           prop=""
           label="封面">
           <template slot-scope="scope">
-            <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
-            <img v-else class="article-cover" src="./pic_bg.png" alt="">
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="scope.row.cover.images[0]"
+              fit="cover"
+              lazy>
+              <div slot="placeholder" class="image-slot">
+                加载中<span class="dot">...</span>
+              </div>
+            </el-image>
+            <!-- <img v-if="scope.row.cover.images[0]" class="article-cover" :src="scope.row.cover.images[0]" alt="">
+            <img v-else class="article-cover" src="./pic_bg.png" alt=""> -->
           </template>
         </el-table-column>
         <el-table-column
@@ -177,7 +192,9 @@ export default {
       totalCount: 0, // 总数据条数
       pageSize: 10, // 每页数量
       status: null, // 根据文章的状态查询, 不传就是查全部
-      channels: [] // 文章频道列表
+      channels: [], // 文章频道列表
+      channelID: null, // 查询文章的频道id
+      rangeDate: null // 筛选的范围日期
     }
   },
   computed: {},
@@ -200,7 +217,10 @@ export default {
       getArticle({
         page, // page: page  第几页
         per_page: this.pageSize, // 总页码
-        status: this.status // 文章状态
+        status: this.status, // 文章状态
+        channel_id: this.channelID, // 频道id
+        begin_pubdate: this.rangeDate ? this.rangeDate[0] : null, // 开始日期 不传就不限定开始时间  判断有值还是为空
+        end_pubdate: this.rangeDate ? this.rangeDate[1] : null // 截至日期 不传就不限定结束时间
       }).then(res => {
         // console.log(res)
         // 重复部分可解构
