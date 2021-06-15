@@ -56,7 +56,11 @@
               button 按钮的 click 事件有个默认参数
               当你没有指定参数的时候,它会默认传递一个没用的数据
              -->
-            <el-button type="primary" @click="loadArticles(1)">筛选</el-button>
+            <el-button
+            type="primary"
+            :disabled="loading"
+            @click="loadArticles(1)"
+            >筛选</el-button>
           </el-form-item>
         </el-form>
         <!-- 数据筛选表格 end -->
@@ -82,13 +86,14 @@
         class="list-table"
         stripe
         size="mini"
-        >
+        v-loading="loading"
+      >
         <el-table-column
           prop=""
           label="封面">
           <template slot-scope="scope">
             <el-image
-              style="width: 100px; height: 100px"
+              style="width: 60px; height: 60px"
               :src="scope.row.cover.images[0]"
               fit="cover"
               lazy>
@@ -125,7 +130,7 @@
         </el-table-column>
         <el-table-column
           label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-button
               size="mini"
               type="primary"
@@ -137,6 +142,7 @@
               type="danger"
               icon="el-icon-delete"
               circle
+              @click="onDeleteArticle(scope.row.id)"
               ></el-button>
           </template>
         </el-table-column>
@@ -153,8 +159,9 @@
       layout="prev, pager, next"
       background
       :total="totalCount"
-      @current-change="onCurrentChange"
       :page-size="pageSize"
+      :disabled="loading"
+      @current-change="onCurrentChange"
       >
     </el-pagination>
     <!-- 数据列表分页 end -->
@@ -163,7 +170,11 @@
 </template>
 
 <script>
-import { getArticle, getArticleChannels } from '@/api/article'
+import {
+  getArticle,
+  getArticleChannels,
+  deleteArticle
+} from '@/api/article'
 
 export default {
   name: 'ArticleIndex',
@@ -194,7 +205,8 @@ export default {
       status: null, // 根据文章的状态查询, 不传就是查全部
       channels: [], // 文章频道列表
       channelID: null, // 查询文章的频道id
-      rangeDate: null // 筛选的范围日期
+      rangeDate: null, // 筛选的范围日期
+      loading: true // 表单数据加载中 loading
     }
   },
   computed: {},
@@ -208,12 +220,14 @@ export default {
   methods: {
     loadChannels () {
       getArticleChannels().then(res => {
-        console.log(res)
+        // console.log(res)
         this.channels = res.data.data.channels
       })
     },
     loadArticles (page = 1) {
     // page = 1 也可以设置默认页码
+    // 每次请求时,展示加载中的loading
+      this.loading = true
       getArticle({
         page, // page: page  第几页
         per_page: this.pageSize, // 总页码
@@ -230,10 +244,36 @@ export default {
         // this.totalCount = res.data.data.totalCount
         this.articles = results // 数据列表
         this.totalCount = totalCount // 列表分页的总数
+
+        // 关闭加载中 loading
+        this.loading = false
       })
     },
     onCurrentChange (page) {
       this.loadArticles(page)
+    },
+    onDeleteArticle (articleID) {
+      console.log(articleID)
+      this.$confirm('确认删除该文章吗?', '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 确认删除后的处理
+        deleteArticle(articleID).then(res => {
+          console.log(res)
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+      // 找到数据接口
+      // 封装请求方法
+      // 删除请求调用
+      // 处理响应结果
+      // console.log('删了')
     }
   }
 }
